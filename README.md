@@ -1,1 +1,1 @@
-# CHStrategies
+# Strategies Manager for CyberHead
