@@ -1,33 +1,26 @@
-from strat1 import strat1
-import pandas
-import yfinance
-from backtesting.test import SMA, GOOG
-
-
-def run_backtest(strategy):
-    exec(f'''
-from {strategy} import {strategy}
 from backtesting import Backtest, Strategy
 
 
-class backtest_{strategy}(Strategy):
-    def init(self):
-        self.prices = {strategy}.broker.prices
+def run_backtest(strategy):
+    strategy = __import__(strategy, globals(), locals())
 
-    def next(self):
-        {strategy}.iterate(self, {strategy}.data)
+    class BacktestStrategy(Strategy):
+        def __init__(self):
+            self.prices = strategy.broker.prices
 
-print({strategy}.broker.prices)
-bt = Backtest({strategy}.broker.prices,
-            backtest_{strategy},
-            cash={strategy}.broker.cash,
-            commission={strategy}.broker.commission)
+        def next(self):
+            strategy.iterate(self, strategy.data)
 
 
-bt.run()
-bt.plot()
+    bt = Backtest(strategy.broker.prices,
+            BacktestStrategy,
+            cash=strategy.broker.cash,
+            commission=strategy.broker.commission)
 
-print('{strategy} backtest performed!')
-''', globals())
+    bt.run()
+    bt.plot()
+    print(f'{strategy} backtest performed!')
 
-run_backtest('strat1')
+from smaCross import smaCross
+run_backtest('smaCross')
+
